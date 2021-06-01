@@ -31,13 +31,22 @@ class TTree;  //Added by Barak
 class EventEvaluator : public SubsysReco
 {
  public:
+<<<<<<< HEAD
+=======
+  enum class TrackSource_t : unsigned short
+  {
+    all = 0,
+    inner = 1
+  };
+
+>>>>>>> 47360257de7c5b464b53f0e2bfab74204deb9046
   EventEvaluator(const std::string& name = "EventEvaluator",
                  const std::string& filename = "g4eval_cemc.root");
-  virtual ~EventEvaluator(){};
+  ~EventEvaluator() override{};
 
-  int Init(PHCompositeNode* topNode);
-  int process_event(PHCompositeNode* topNode);
-  int End(PHCompositeNode* topNode);
+  int Init(PHCompositeNode* topNode) override;
+  int process_event(PHCompositeNode* topNode) override;
+  int End(PHCompositeNode* topNode) override;
 
   void set_strict(bool b) { _strict = b; }
 
@@ -67,6 +76,15 @@ class EventEvaluator : public SubsysReco
     _reco_e_threshold = thresh;
   }
 
+<<<<<<< HEAD
+=======
+  //! max depth/generation of the MC_particle/PHG4Particle that would be saved.
+  void set_depth_MCstack(int d)
+  {
+    _depth_MCstack = d;
+  }
+
+>>>>>>> 47360257de7c5b464b53f0e2bfab74204deb9046
  private:
   bool _do_FHCAL;
   bool _do_HCALIN;

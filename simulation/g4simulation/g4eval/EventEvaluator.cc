@@ -1868,6 +1868,7 @@ void EventEvaluator::fillOutputNtuples(PHCompositeNode* topNode)
   {
     _nTracks = 0;
     _nProjections = 0;
+<<<<<<< HEAD
     SvtxTrackMap* trackmap = findNode::getClass<SvtxTrackMap>(topNode, "TrackMap");
     if (trackmap)
     {
@@ -1879,6 +1880,27 @@ void EventEvaluator::fillOutputNtuples(PHCompositeNode* topNode)
       {
         SvtxTrack_FastSim* track = dynamic_cast<SvtxTrack_FastSim*>(track_itr->second);
         if (track)
+=======
+    // Loop over track maps, identifiy each source.
+    // Although this configuration is fixed here, it doesn't require multiple sources.
+    // It will only store them if they're available.
+    std::vector<std::pair<std::string, TrackSource_t>> trackMapInfo = {
+        {"TrackMap", TrackSource_t::all},
+        {"TrackMapInner", TrackSource_t::inner}};
+    bool foundAtLeastOneTrackSource = false;
+    for (const auto& trackMapInfo : trackMapInfo)
+    {
+      SvtxTrackMap* trackmap = findNode::getClass<SvtxTrackMap>(topNode, trackMapInfo.first);
+      if (trackmap)
+      {
+        foundAtLeastOneTrackSource = true;
+        int nTracksInASource = 0;
+        if (Verbosity() > 0)
+        {
+          cout << "saving tracks for track map: " << trackMapInfo.first << endl;
+        }
+        for (SvtxTrackMap::ConstIter track_itr = trackmap->begin(); track_itr != trackmap->end(); track_itr++)
+>>>>>>> 47360257de7c5b464b53f0e2bfab74204deb9046
         {
           _track_ID[_nTracks] = track->get_id();
           _track_px[_nTracks] = track->get_px();
@@ -1887,6 +1909,7 @@ void EventEvaluator::fillOutputNtuples(PHCompositeNode* topNode)
           _track_trueID[_nTracks] = track->get_truth_track_id();
           if (_do_PROJECTIONS)
           {
+<<<<<<< HEAD
             // find projections
             for (SvtxTrack::ConstStateIter trkstates = track->begin_states(); trkstates != track->end_states(); ++trkstates)
             {
@@ -1913,9 +1936,34 @@ void EventEvaluator::fillOutputNtuples(PHCompositeNode* topNode)
                 string nodename = "G4HIT_" + trkstates->second->get_name();
                 PHG4HitContainer* hits = findNode::getClass<PHG4HitContainer>(topNode, nodename);
                 if (hits)
+=======
+            _track_ID[_nTracks] = track->get_id();
+            _track_px[_nTracks] = track->get_px();
+            _track_py[_nTracks] = track->get_py();
+            _track_pz[_nTracks] = track->get_pz();
+            _track_trueID[_nTracks] = track->get_truth_track_id();
+            _track_source[_nTracks] = static_cast<unsigned short>(trackMapInfo.second);
+            if (_do_PROJECTIONS)
+            {
+              // find projections
+              for (SvtxTrack::ConstStateIter trkstates = track->begin_states(); trkstates != track->end_states(); ++trkstates)
+              {
+                if (Verbosity() > 1)
+                {
+                  cout << __PRETTY_FUNCTION__ << " processing " << trkstates->second->get_name() << endl;
+                }
+                string trackStateName = trkstates->second->get_name();
+                if (Verbosity() > 1)
+                {
+                  cout << __PRETTY_FUNCTION__ << " found " << trkstates->second->get_name() << endl;
+                }
+                int trackStateIndex = GetProjectionIndex(trackStateName);
+                if (trackStateIndex > -1)
+>>>>>>> 47360257de7c5b464b53f0e2bfab74204deb9046
                 {
                   if (Verbosity() > 1)
                   {
+<<<<<<< HEAD
                     cout << __PRETTY_FUNCTION__ << " number of hits: " << hits->size() << endl;
                   }
                   PHG4HitContainer::ConstRange hit_range = hits->getHits();
@@ -1930,6 +1978,30 @@ void EventEvaluator::fillOutputNtuples(PHCompositeNode* topNode)
                       if (Verbosity() > 1)
                       {
                         cout << __PRETTY_FUNCTION__ << " found hit with id " << hit_iter->second->get_trkid() << endl;
+=======
+                    if (Verbosity() > 1)
+                    {
+                      cout << __PRETTY_FUNCTION__ << " number of hits: " << hits->size() << endl;
+                    }
+                    PHG4HitContainer::ConstRange hit_range = hits->getHits();
+                    for (PHG4HitContainer::ConstIterator hit_iter = hit_range.first; hit_iter != hit_range.second; hit_iter++)
+                    {
+                      if (Verbosity() > 1)
+                      {
+                        cout << __PRETTY_FUNCTION__ << " checking hit id " << hit_iter->second->get_trkid() << " against " << track->get_truth_track_id() << endl;
+                      }
+                      if (hit_iter->second->get_trkid() - track->get_truth_track_id() == 0)
+                      {
+                        if (Verbosity() > 1)
+                        {
+                          cout << __PRETTY_FUNCTION__ << " found hit with id " << hit_iter->second->get_trkid() << endl;
+                        }
+                        // save reco projection info to given branch
+                        _track_TLP_x[_nProjections] = hit_iter->second->get_x(0);
+                        _track_TLP_y[_nProjections] = hit_iter->second->get_y(0);
+                        _track_TLP_z[_nProjections] = hit_iter->second->get_z(0);
+                        _track_TLP_t[_nProjections] = hit_iter->second->get_t(0);
+>>>>>>> 47360257de7c5b464b53f0e2bfab74204deb9046
                       }
                       // save reco projection info to given branch
                       _track_TLP_x[_nProjections] = hit_iter->second->get_x(0);
@@ -1943,7 +2015,15 @@ void EventEvaluator::fillOutputNtuples(PHCompositeNode* topNode)
                 {
                   if (Verbosity() > 1)
                   {
+<<<<<<< HEAD
                     cout << __PRETTY_FUNCTION__ << " could not find " << nodename << endl;
+=======
+                    if (Verbosity() > 1)
+                    {
+                      cout << __PRETTY_FUNCTION__ << " could not find " << nodename << endl;
+                    }
+                    continue;
+>>>>>>> 47360257de7c5b464b53f0e2bfab74204deb9046
                   }
                   continue;
                 }
@@ -1962,6 +2042,13 @@ void EventEvaluator::fillOutputNtuples(PHCompositeNode* topNode)
           }
           continue;
         }
+<<<<<<< HEAD
+=======
+        if (Verbosity() > 0)
+        {
+          cout << "saved\t" << nTracksInASource << "\ttracks from track map " << trackMapInfo.first << ". Total saved tracks: " << _nTracks << endl;
+        }
+>>>>>>> 47360257de7c5b464b53f0e2bfab74204deb9046
       }
       if (Verbosity() > 0)
       {
@@ -1972,8 +2059,19 @@ void EventEvaluator::fillOutputNtuples(PHCompositeNode* topNode)
     {
       if (Verbosity() > 0)
       {
+<<<<<<< HEAD
         cout << PHWHERE << "SvtxTrackMap node with name TrackMap not found on node tree" << endl;
+=======
+        if (Verbosity() > 0)
+        {
+          cout << PHWHERE << "SvtxTrackMap node with name '" << trackMapInfo.first << "' not found on node tree" << endl;
+        }
+>>>>>>> 47360257de7c5b464b53f0e2bfab74204deb9046
       }
+      return;
+    }
+    if (foundAtLeastOneTrackSource == false) {
+      cout << PHWHERE << "Requested tracks, but found no sources on node tree. Returning" << endl;
       return;
     }
   }
@@ -2198,9 +2296,9 @@ int EventEvaluator::GetProjectionIndex(std::string projname)
     return 3;
   else if (projname.find("ETTL_1") != std::string::npos)
     return 4;
-  else if (projname.find("FHCAL_0") != std::string::npos)
+  else if (projname.find("FHCAL") != std::string::npos)
     return 5;
-  else if (projname.find("FEMC_0") != std::string::npos)
+  else if (projname.find("FEMC") != std::string::npos)
     return 6;
   else if (projname.find("CTTL_0") != std::string::npos)
     return 7;
